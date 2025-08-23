@@ -12,7 +12,6 @@
 void process_user_input(char **input, ProcessGroup* process_group)
 {
     char* first_word = input[0];
-    printf("%s\n", first_word);
 
     if (strcmp(first_word, "launch") == 0)
     {

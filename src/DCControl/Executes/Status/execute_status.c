@@ -6,5 +6,8 @@
 
 void execute_status(char** input, ProcessGroup* process_group)
 {
-    printf("Executing status command...\n"); // Placeholder for status logic
+    for (size_t i = 0; i < process_group->process_count; i++)
+    {
+        show_information(&process_group->processes[i]);
+    }
 }
