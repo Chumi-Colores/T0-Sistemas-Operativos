@@ -1,5 +1,5 @@
 #pragma once
 
-#include "process.h"
+#include "process_group.h"
 
-void process_user_input(char** input, Process* processes);
+void process_user_input(char** input, ProcessGroup* process_group);

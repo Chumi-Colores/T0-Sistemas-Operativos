@@ -2,37 +2,37 @@
 #include <stdlib.h>
 #include <string.h>
 #include "input_controller.h"
-#include "process.h"
+#include "process_group.h"
 #include "Executes/Abort/execute_abort.h"
 #include "Executes/Emergency/execute_emergency.h"
 #include "Executes/Launch/execute_launch.h"
 #include "Executes/Shutdown/execute_shutdown.h"
 #include "Executes/Status/execute_status.h"
 
-void process_user_input(char **input, Process* processes)
+void process_user_input(char **input, ProcessGroup* process_group)
 {
     char* first_word = input[0];
     printf("%s\n", first_word);
 
     if (strcmp(first_word, "launch") == 0)
     {
-        execute_launch(input, processes);
+        execute_launch(input, process_group);
     }
     else if (strcmp(first_word, "status") == 0)
     {
-        execute_status(input, processes);
+        execute_status(input, process_group);
     }
     else if (strcmp(first_word, "abort") == 0)
     {
-        execute_abort(input, processes);
+        execute_abort(input, process_group);
     }
     else if (strcmp(first_word, "shutdown") == 0)
     {
-        execute_shutdown(input, processes);
+        execute_shutdown(input, process_group);
     }
     else if (strcmp(first_word, "emergency") == 0)
     {
-        execute_emergency(input, processes);
+        execute_emergency(input, process_group);
     }
     else
     {
