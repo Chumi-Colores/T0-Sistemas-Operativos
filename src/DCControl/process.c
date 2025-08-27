@@ -19,12 +19,9 @@ void initialize_Process(Process* process, char** input, int pid)
 void show_information(Process* process){
     printf("Process ID: %i\n", process->pid);
     printf("Name: %s\n", process->name);
-    if (process->exit_code == -1)
-    {
+    if (process->end_time == 0){
         printf("Execution time: %lld seconds\n", (long long) (time(NULL) - process->start_time));
-    }
-    else
-    {
+    } else {
         printf("Execution time: %lld seconds\n", (long long) (process->end_time - process->start_time));
     }
     printf("Exit code: %i\n", process->exit_code);

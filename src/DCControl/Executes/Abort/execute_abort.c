@@ -6,5 +6,23 @@
 
 void execute_abort(char** input, ProcessGroup* process_group)
 {
-    printf("Executing abort command...\n"); // Placeholder for abort logic
+    char* input_time = input[1];
+    int abort_time = 0;
+    if (input_time != NULL) {
+        abort_time = atoi(input_time);
+    } else{
+        abort_time = 3;
+    }
+
+    if (are_any_process_running(process_group)){
+        int current_process_count = process_group->process_count;
+        sleep(abort_time);
+        kill_processes_range(process_group, current_process_count);
+        printf(".\n"); fflush(stdout);
+
+    }
+    else {
+        printf("No hay procesos en ejecución. Abort no se puede ejecutar.\n");
+    }
+
 }

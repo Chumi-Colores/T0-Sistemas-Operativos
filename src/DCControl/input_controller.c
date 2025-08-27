@@ -9,13 +9,13 @@
 #include "Executes/Shutdown/execute_shutdown.h"
 #include "Executes/Status/execute_status.h"
 
-void process_user_input(char **input, ProcessGroup* process_group)
+void process_user_input(char **input, ProcessGroup* process_group, int time_max)
 {
     char* first_word = input[0];
 
     if (strcmp(first_word, "launch") == 0)
     {
-        execute_launch(input, process_group);
+        execute_launch(input, process_group, time_max);
     }
     else if (strcmp(first_word, "status") == 0)
     {
