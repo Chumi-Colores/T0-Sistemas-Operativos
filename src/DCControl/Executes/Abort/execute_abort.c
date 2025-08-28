@@ -15,11 +15,15 @@ void execute_abort(char** input, ProcessGroup* process_group)
     }
 
     if (are_any_process_running(process_group)){
-        int current_process_count = process_group->process_count;
-        sleep(abort_time);
-        kill_processes_range(process_group, current_process_count);
-        printf(".\n"); fflush(stdout);
-
+        int aborting_process_pid = fork();
+        if (aborting_process_pid == 0){
+            // Proceso hijo
+            int current_process_count = process_group->process_count;
+            sleep(abort_time);
+            abort_processes_in_range(process_group, current_process_count);
+            printf("\n"); fflush(stdout);
+            _exit(0);
+        }
     }
     else {
         printf("No hay procesos en ejecución. Abort no se puede ejecutar.\n");

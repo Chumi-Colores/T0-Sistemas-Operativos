@@ -35,9 +35,10 @@ int main(int argc, char const *argv[])
   set_buffer(); // No borrar
   char** input;
 
-  while (1) {
+  int play = 1;
+  while (play) {
     input = read_user_input();
-    process_user_input(input, &process_group, time_max);
+    play = process_user_input(input, &process_group, time_max);
     free_user_input(input);
   }
 }

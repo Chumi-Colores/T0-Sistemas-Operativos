@@ -38,19 +38,27 @@ int are_any_process_running(ProcessGroup* process_group)
     return 0;
 }
 
-void kill_processes_range(ProcessGroup* process_group, int end){
+void abort_processes_in_range(ProcessGroup* process_group, int end){
     for (int i = 0; i < end; i++)
     {
         if (process_group->processes[i].end_time == 0)
         {
+            printf("Abort cumplido.\n");
+            show_information(&process_group->processes[i]);
             kill(process_group->processes[i].pid, SIGTERM);
-            printf("%d %s %lld %d %d\n",
-                   process_group->processes[i].pid,
-                   process_group->processes[i].name,
-                   (long long) (time(NULL) - process_group->processes[i].start_time),
-                   process_group->processes[i].exit_code,
-                   process_group->processes[i].signal_value);
         }
+    }
+}
+
+void kill_everyone_inmediately(ProcessGroup* process_group)
+{
+    for (int i = 0; i < process_group->process_count; i++)
+    {
+        if (kill(process_group->processes[i].pid, 0) == 0)
+        {
+            kill(process_group->processes[i].pid, SIGKILL);
+        }
+        show_information(&process_group->processes[i]);
     }
 }
 

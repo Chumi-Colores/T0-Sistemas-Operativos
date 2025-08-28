@@ -6,5 +6,7 @@
 
 void execute_emergency(char **input, ProcessGroup* process_group)
 {
-    printf("Executing emergency command...\n"); // Placeholder for emergency logic
+    printf("¡Emergencia!\n");
+    printf("DCControl finalizado.\n");
+    kill_everyone_inmediately(process_group);
 }
