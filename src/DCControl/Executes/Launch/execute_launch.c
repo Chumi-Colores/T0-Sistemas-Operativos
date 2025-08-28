@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-void execute_launch(char** input, ProcessGroup* process_group, int time_max)
+void execute_launch(char** input, ProcessGroup* process_group)
 {
     int pid = fork();
     if (pid == 0) // Child process
@@ -17,27 +17,32 @@ void execute_launch(char** input, ProcessGroup* process_group, int time_max)
         if (execvp(executable, args) == -1)
         {
             printf("Executable: %s failed\n", executable);
-            _exit(1);
+            _exit(EXIT_FAILURE);
         }
     } 
     else // Parent process
     {
         add_process(process_group, input, pid);
-        if (time_max > 0){
-            int time_max_monitor_pid = fork();
-            if (time_max_monitor_pid == 0) // Child process to monitor time_max
+
+        int time_max_monitor_pid = fork();
+        if (time_max_monitor_pid == 0) // Child process to monitor time_max
+        {
+            sleep(process_group->time_max);
+            if (kill(pid, SIGTERM) == 0) // Vemos si el hijo sigue vivo y le pedimos amablemente que se suicide
             {
-                sleep(time_max);
-                if (kill(pid, SIGTERM) == 0) { // Vemos si el hijo sigue vivo y le pedimos amablemente que se suicide
-                    sleep(5);
-                    if (kill(pid, 0) == 0) // Si sigue vivo, le pedimos por las malas
-                    {
-                        printf("Tiempo límite excedido, matando al proceso hijo %s...\n", get_process(process_group, pid)->name);
-                        kill(pid, SIGKILL);
-                    }
+                sleep(5);
+                if (kill(pid, 0) == 0) // Si sigue vivo, le pedimos por las malas
+                {
+                    printf("Tiempo límite excedido, matando al proceso hijo %s...\n", get_process(process_group, pid)->name);
+                    kill(pid, SIGKILL);
                 }
-                exit(0);
             }
+            _exit(EXIT_SUCCESS);
         }
+        else
+        {
+            add_manager_process(process_group, time_max_monitor_pid);
+        }
+        
     }
 }

@@ -9,7 +9,7 @@
 #include "Executes/Shutdown/execute_shutdown.h"
 #include "Executes/Status/execute_status.h"
 
-int process_user_input(char **input, ProcessGroup* process_group, int time_max)
+int process_user_input(char **input, ProcessGroup* process_group)
 {
     char* first_word = input[0];
 
@@ -17,7 +17,7 @@ int process_user_input(char **input, ProcessGroup* process_group, int time_max)
 
     if (strcmp(first_word, "launch") == 0)
     {
-        execute_launch(input, process_group, time_max);
+        execute_launch(input, process_group);
     }
     else if (strcmp(first_word, "status") == 0)
     {

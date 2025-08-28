@@ -13,6 +13,7 @@ void initialize_Process(Process* process, char** input, int pid)
     process->start_time = time(NULL);
     process->exit_code = -1;
     process->signal_value = -1;
+    process->end_time = 0;
 }
 
 
@@ -29,7 +30,7 @@ void show_information(Process* process){
     // printf("\n");
 
     // PARA GONZALO: Preferí hacerlo en una sola línea para mantener formato con otras partes de la tarea
-    long long int execution_time = (process->end_time == 0) ? (long long) (time(NULL) - process->start_time) : (long long) (process->end_time - process->start_time);
+    long long execution_time = (process->end_time == 0) ? (long long) (time(NULL) - process->start_time) : (long long) (process->end_time - process->start_time);
 
     printf("%i %s %lld %d %d\n",
            process->pid,

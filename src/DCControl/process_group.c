@@ -4,11 +4,17 @@
 #include <stdio.h>
 #include <signal.h>
 
-void initialize_ProcessGroup(ProcessGroup* process_group) {
+void initialize_ProcessGroup(ProcessGroup* process_group, int time_max)
+{
+    process_group->time_max = time_max;
     process_group->max_processes = 10;
+    process_group->max_manager_processes = 10;
     process_group->processes = malloc(process_group->max_processes * sizeof(Process));
+    process_group->manager_pids = malloc(process_group->max_manager_processes * sizeof(int));
+    process_group->manager_process_count = 0;
     process_group->process_count = 0;
 }
+
 
 void add_process(ProcessGroup* process_group, char** input, int pid)
 {
@@ -20,11 +26,29 @@ void add_process(ProcessGroup* process_group, char** input, int pid)
     process_group->process_count += 1;
 }
 
+
+void add_manager_process(ProcessGroup* process_group, int manager_pid)
+{
+    if (process_group->manager_process_count == process_group->max_manager_processes)
+    {
+        increase_manager_process_capacity(process_group);
+    }
+    process_group->manager_pids[process_group->manager_process_count] = manager_pid;
+    process_group->manager_process_count += 1;
+}
+
 void increase_process_capacity(ProcessGroup* process_group)
 {
     process_group->max_processes *= 2;
     process_group->processes = realloc(process_group->processes, process_group->max_processes * sizeof(Process));
 }
+
+void increase_manager_process_capacity(ProcessGroup* process_group)
+{
+    process_group->max_manager_processes *= 2;
+    process_group->manager_pids = realloc(process_group->manager_pids, process_group->max_manager_processes * sizeof(int));
+}
+
 
 int are_any_process_running(ProcessGroup* process_group)
 {
@@ -38,6 +62,7 @@ int are_any_process_running(ProcessGroup* process_group)
     return 0;
 }
 
+
 void abort_processes_in_range(ProcessGroup* process_group, int end){
     for (int i = 0; i < end; i++)
     {
@@ -49,6 +74,7 @@ void abort_processes_in_range(ProcessGroup* process_group, int end){
         }
     }
 }
+
 
 void kill_everyone_inmediately(ProcessGroup* process_group)
 {
@@ -62,6 +88,7 @@ void kill_everyone_inmediately(ProcessGroup* process_group)
     }
 }
 
+
 Process* get_process(ProcessGroup* process_group, int pid)
 {
     for (int i = 0; i < process_group->process_count; i++)
@@ -74,10 +101,13 @@ Process* get_process(ProcessGroup* process_group, int pid)
     return NULL;
 }
 
-void free_all_processes(ProcessGroup* process_group){
+
+void free_all_processes(ProcessGroup* process_group)
+{
     for (int i = 0; i < process_group->process_count; i++)
     {
         free(process_group->processes[i].name);
     }
     free(process_group->processes);
+    free(process_group->manager_pids);
 }
