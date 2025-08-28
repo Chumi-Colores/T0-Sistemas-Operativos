@@ -74,3 +74,10 @@ Process* get_process(ProcessGroup* process_group, int pid)
     return NULL;
 }
 
+void free_all_processes(ProcessGroup* process_group){
+    for (int i = 0; i < process_group->process_count; i++)
+    {
+        free(process_group->processes[i].name);
+    }
+    free(process_group->processes);
+}

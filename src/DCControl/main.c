@@ -41,4 +41,6 @@ int main(int argc, char const *argv[])
     play = process_user_input(input, &process_group, time_max);
     free_user_input(input);
   }
+
+  free_all_processes(&process_group);
 }

@@ -23,4 +23,6 @@ void abort_processes_in_range(ProcessGroup* process_group, int end);
 
 void kill_everyone_inmediately(ProcessGroup* process_group);
 
+void free_all_processes(ProcessGroup* process_group);
+
 Process* get_process(ProcessGroup* process_group, int pid);

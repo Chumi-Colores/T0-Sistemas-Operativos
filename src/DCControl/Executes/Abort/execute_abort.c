@@ -22,7 +22,7 @@ void execute_abort(char** input, ProcessGroup* process_group)
             sleep(abort_time);
             abort_processes_in_range(process_group, current_process_count);
             printf("\n"); fflush(stdout);
-            _exit(0);
+            exit(0);
         }
     }
     else {
