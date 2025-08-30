@@ -17,7 +17,6 @@ void sigchld_handler(int signum) {
 	Process* process;
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
 	{
-		printf("PID: %i\n", pid);
 		process = get_process(&process_group, pid);
 		if (process != NULL)
         {
