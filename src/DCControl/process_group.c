@@ -13,6 +13,9 @@ void initialize_ProcessGroup(ProcessGroup* process_group, int time_max)
     process_group->manager_pids = malloc(process_group->max_manager_processes * sizeof(int));
     process_group->manager_process_count = 0;
     process_group->process_count = 0;
+    process_group->running_processes = 0;
+    process_group->running_manager_processes = 0;
+    process_group->stop_pid = 0;
 }
 
 
@@ -24,6 +27,7 @@ void add_process(ProcessGroup* process_group, char** input, int pid)
     }
     initialize_Process(&process_group->processes[process_group->process_count], input, pid);
     process_group->process_count += 1;
+    process_group->running_processes += 1;
 }
 
 
@@ -35,6 +39,7 @@ void add_manager_process(ProcessGroup* process_group, int manager_pid)
     }
     process_group->manager_pids[process_group->manager_process_count] = manager_pid;
     process_group->manager_process_count += 1;
+    process_group->running_manager_processes += 1;
 }
 
 void increase_process_capacity(ProcessGroup* process_group)
@@ -50,23 +55,10 @@ void increase_manager_process_capacity(ProcessGroup* process_group)
 }
 
 
-int are_any_process_running(ProcessGroup* process_group)
-{
-    for (int i = 0; i < process_group->process_count; i++)
-    {
-        if (process_group->processes[i].end_time == 0)
-        {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-
 void abort_processes_in_range(ProcessGroup* process_group, int end){
     for (int i = 0; i < end; i++)
     {
-        if (process_group->processes[i].end_time == 0)
+        if (kill(process_group->processes[i].pid, 0) == 0)
         {
             printf("Abort cumplido.\n");
             show_information(&process_group->processes[i]);
@@ -86,6 +78,15 @@ void kill_everyone_inmediately(ProcessGroup* process_group)
         }
         show_information(&process_group->processes[i]);
     }
+
+    for (int i = 0; i < process_group->manager_process_count; i++)
+    {
+        if (kill(process_group->manager_pids[i], 0) == 0)
+        {
+            kill(process_group->manager_pids[i], SIGKILL);
+        }
+    }
+    
 }
 
 
@@ -102,7 +103,7 @@ Process* get_process(ProcessGroup* process_group, int pid)
 }
 
 
-void free_all_processes(ProcessGroup* process_group)
+void free_ProcessGroup(ProcessGroup* process_group)
 {
     for (int i = 0; i < process_group->process_count; i++)
     {

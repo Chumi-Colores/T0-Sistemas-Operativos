@@ -6,6 +6,11 @@
 
 void execute_abort(char** input, ProcessGroup* process_group)
 {
+    if (process_group->stop_pid)
+    {
+        printf("Shutdown in progress, abort cancelled\n");
+        return;
+    }
     char* input_time = input[1];
 
     if (input_time == NULL) 
@@ -16,7 +21,7 @@ void execute_abort(char** input, ProcessGroup* process_group)
 
     int abort_time = atoi(input_time);
 
-    if (!are_any_process_running(process_group))
+    if (process_group->running_processes == 0)
     {
         printf("No hay procesos en ejecución. Abort no se puede ejecutar.\n");
         return;
@@ -28,7 +33,6 @@ void execute_abort(char** input, ProcessGroup* process_group)
         int current_process_count = process_group->process_count;
         sleep(abort_time);
         abort_processes_in_range(process_group, current_process_count);
-        printf("\n"); fflush(stdout);
         _exit(EXIT_SUCCESS);
     }
     else // Parent Process

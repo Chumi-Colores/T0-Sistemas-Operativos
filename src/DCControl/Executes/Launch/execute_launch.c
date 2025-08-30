@@ -19,6 +19,7 @@ void execute_launch(char** input, ProcessGroup* process_group)
             printf("Executable: %s failed\n", executable);
             _exit(EXIT_FAILURE);
         }
+        _exit(EXIT_SUCCESS);
     } 
     else // Parent process
     {
@@ -39,7 +40,7 @@ void execute_launch(char** input, ProcessGroup* process_group)
             }
             _exit(EXIT_SUCCESS);
         }
-        else
+        else // Parent process
         {
             add_manager_process(process_group, time_max_monitor_pid);
         }

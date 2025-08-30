@@ -7,6 +7,7 @@
 #include "process.h"
 #include <signal.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 ProcessGroup process_group;
 
@@ -16,10 +17,28 @@ void sigchld_handler(int signum) {
 	Process* process;
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
 	{
+		printf("PID: %i\n", pid);
 		process = get_process(&process_group, pid);
 		if (process != NULL)
         {
 			update_process(process, status);
+			process_group.running_processes -= 1;
+		}
+		else
+		{
+			process_group.running_manager_processes -= 1;
+
+			if (pid == process_group.stop_pid)
+			{
+				kill_everyone_inmediately(&process_group);
+        		printf("\n"); fflush(stdout);
+			}
+		}
+
+		if (process_group.stop_pid && process_group.running_processes == 0 && process_group.running_manager_processes == 0)
+		{
+			free_ProcessGroup(&process_group);
+			exit(EXIT_SUCCESS);
 		}
 	}
 }
@@ -39,13 +58,10 @@ int main(int argc, char const *argv[])
 	set_buffer(); // No borrar
 	char** input;
 
-	int play = 1;
-	while (play)
+	while (!process_group.stop_pid || process_group.running_processes > 0 || process_group.running_manager_processes > 0)
     {
 		input = read_user_input();
-		play = process_user_input(input, &process_group);
+		process_user_input(input, &process_group);
 		free_user_input(input);
 	}
-
-	free_all_processes(&process_group);
 }

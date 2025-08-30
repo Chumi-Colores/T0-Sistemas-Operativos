@@ -17,19 +17,8 @@ void initialize_Process(Process* process, char** input, int pid)
 }
 
 
-void show_information(Process* process){
-    // printf("Process ID: %i\n", process->pid);
-    // printf("Name: %s\n", process->name);
-    // if (process->end_time == 0){
-    //     printf("Execution time: %lld seconds\n", (long long) (time(NULL) - process->start_time));
-    // } else {
-    //     printf("Execution time: %lld seconds\n", (long long) (process->end_time - process->start_time));
-    // }
-    // printf("Exit code: %i\n", process->exit_code);
-    // printf("Signal value: %i\n", process->signal_value);
-    // printf("\n");
-
-    // PARA GONZALO: Preferí hacerlo en una sola línea para mantener formato con otras partes de la tarea
+void show_information(Process* process)
+{
     long long execution_time = (process->end_time == 0) ? (long long) (time(NULL) - process->start_time) : (long long) (process->end_time - process->start_time);
 
     printf("%i %s %lld %d %d\n",
