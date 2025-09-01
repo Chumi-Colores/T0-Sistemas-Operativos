@@ -2,12 +2,22 @@
 #include "process_group.h"
 #include "process.h"
 #include <stdio.h>
+#include <signal.h>
 
-void initialize_ProcessGroup(ProcessGroup* process_group) {
+void initialize_ProcessGroup(ProcessGroup* process_group, int time_max)
+{
+    process_group->time_max = time_max;
     process_group->max_processes = 10;
+    process_group->max_manager_processes = 10;
     process_group->processes = malloc(process_group->max_processes * sizeof(Process));
+    process_group->manager_pids = malloc(process_group->max_manager_processes * sizeof(int));
+    process_group->manager_process_count = 0;
     process_group->process_count = 0;
+    process_group->running_processes = 0;
+    process_group->running_manager_processes = 0;
+    process_group->stop_pid = 0;
 }
+
 
 void add_process(ProcessGroup* process_group, char** input, int pid)
 {
@@ -17,6 +27,19 @@ void add_process(ProcessGroup* process_group, char** input, int pid)
     }
     initialize_Process(&process_group->processes[process_group->process_count], input, pid);
     process_group->process_count += 1;
+    process_group->running_processes += 1;
+}
+
+
+void add_manager_process(ProcessGroup* process_group, int manager_pid)
+{
+    if (process_group->manager_process_count == process_group->max_manager_processes)
+    {
+        increase_manager_process_capacity(process_group);
+    }
+    process_group->manager_pids[process_group->manager_process_count] = manager_pid;
+    process_group->manager_process_count += 1;
+    process_group->running_manager_processes += 1;
 }
 
 void increase_process_capacity(ProcessGroup* process_group)
@@ -24,6 +47,48 @@ void increase_process_capacity(ProcessGroup* process_group)
     process_group->max_processes *= 2;
     process_group->processes = realloc(process_group->processes, process_group->max_processes * sizeof(Process));
 }
+
+void increase_manager_process_capacity(ProcessGroup* process_group)
+{
+    process_group->max_manager_processes *= 2;
+    process_group->manager_pids = realloc(process_group->manager_pids, process_group->max_manager_processes * sizeof(int));
+}
+
+
+void abort_processes_in_range(ProcessGroup* process_group, int end){
+    for (int i = 0; i < end; i++)
+    {
+        if (kill(process_group->processes[i].pid, 0) == 0)
+        {
+            printf("Abort cumplido.\n");
+            show_information(&process_group->processes[i]);
+            kill(process_group->processes[i].pid, SIGTERM);
+        }
+    }
+}
+
+
+void kill_everyone_inmediately(ProcessGroup* process_group)
+{
+    for (int i = 0; i < process_group->process_count; i++)
+    {
+        if (kill(process_group->processes[i].pid, 0) == 0)
+        {
+            kill(process_group->processes[i].pid, SIGKILL);
+        }
+        show_information(&process_group->processes[i]);
+    }
+
+    for (int i = 0; i < process_group->manager_process_count; i++)
+    {
+        if (kill(process_group->manager_pids[i], 0) == 0)
+        {
+            kill(process_group->manager_pids[i], SIGKILL);
+        }
+    }
+    
+}
+
 
 Process* get_process(ProcessGroup* process_group, int pid)
 {
@@ -37,3 +102,13 @@ Process* get_process(ProcessGroup* process_group, int pid)
     return NULL;
 }
 
+
+void free_ProcessGroup(ProcessGroup* process_group)
+{
+    for (int i = 0; i < process_group->process_count; i++)
+    {
+        free(process_group->processes[i].name);
+    }
+    free(process_group->processes);
+    free(process_group->manager_pids);
+}
